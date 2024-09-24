@@ -3,14 +3,11 @@
 # Requires `git`
 #
 # Idea: https://news.ycombinator.com/item?id=11071754
-
 dotfiles_repository=$HOME/.dotfiles-repository
 
 is_inside_git_repo() {
   dir=$1
-  PWD=$dir
   cd "$dir" || exit
-  pwd
   git rev-parse --is-inside-git-dir
 }
 
