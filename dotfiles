@@ -28,7 +28,14 @@ if [ "$1" = "init" ]; then
 elif [ "$1" = "restore" ]; then
   echo "Restoring..."
   path_to_repo="$2" # e.g. github.com/username/dotfiles
-  git clone --separate-git-dir="$dotfiles_repository" "$path_to_repo" ~
+  # git clone --separate-git-dir="$dotfiles_repository" "$path_to_repo" ~
+
+  temp_dir=$(mktemp -d)
+  git clone --separate-git-dir="$dotfiles_repository" "$path_to_repo" "$temp_dir"
+  if [ -d "$temp_dir/.gitmodules" ]; then
+    cp "$temp_dir/.gitmodules" ~ # If you use Git submodules
+  fi
+  rm -r "$temp_dir"
 else
   git --git-dir="$dotfiles_repository" --work-tree="$HOME" $*
 fi
