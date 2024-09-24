@@ -1,0 +1,34 @@
+#!/bin/sh
+# Super simple dotfiles management
+# Requires `git`
+#
+# Idea: https://news.ycombinator.com/item?id=11071754
+
+dotfiles_repository=$HOME/.dotfiles-repository
+
+is_inside_git_repo() {
+  dir=$1
+  PWD=$dir
+  cd "$dir" || exit
+  pwd
+  git rev-parse --is-inside-git-dir
+}
+
+if [ "$1" = "init" ]; then
+  if [ "$(is_inside_git_repo "$dotfiles_repository")" ]; then
+    echo "Already initialized. Exiting without modification"
+    exit 0
+  else
+    echo "Initialize..."
+    git init --bare "$dotfiles_repository"
+    # recursion via $0
+    cd "$dotfiles_repository" || exit
+    git config status.showUntrackedFiles no
+  fi
+elif [ "$1" = "restore" ]; then
+  echo "Restoring..."
+  path_to_repo="$2" # e.g. github.com/username/dotfiles
+  git clone --separate-git-dir="$dotfiles_repository" "$path_to_repo" ~
+else
+  git --git-dir="$dotfiles_repository" --work-tree="$HOME" $*
+fi
